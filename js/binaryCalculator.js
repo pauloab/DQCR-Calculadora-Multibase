@@ -21,7 +21,7 @@ let operation;
 
 var base = 2;
 var base_str = "2";
-let roundCifs = 2;
+var roundCifs = 3;
 
 String.prototype.splice = function( idx, rem, s ) { 
 	return idx==-1?this:(this.slice(0,idx) + s + this.slice(idx + Math.abs(rem))); 
@@ -60,13 +60,13 @@ document.getElementById("makeUp").addEventListener("click",e=>{
 // Opera y llena el cuadro de resultado y procesos para conversión a base 10
 document.getElementById("toBase10Calculate").addEventListener("click",e=>{
 	const results = NotacionExpandida(document.getElementById("InToBase10").value);
-	document.getElementById("toBase10Res").innerHTML = document.getElementById("InToBase10").value!=""?"Entrada: "+maquillaje(document.getElementById("InToBase10").value)+"<br><br>Proceso <br>"+results[3]+"<br><br>Resultado de parte entera: "+results[1].toString()+"<br>Resultado de parte flotante: "+results[2]+"<br><br> Resultado total: "+results[0]:"";
+	document.getElementById("toBase10Res").innerHTML = document.getElementById("InToBase10").value!=""?"Entrada: "+maquillaje(document.getElementById("InToBase10").value)+"<br><br>Proceso <br>"+results[3]+"<br><br>Resultado de parte entera: "+maquillaje(results[1].toString())+"<br>Resultado de parte flotante: "+results[2]+"<br><br> Resultado total: "+maquillaje(results[0]):"";
 	document.getElementById("InToBase10").value = "";
 });
 
 // Opera y llena el cuadro de resultado y procesos para conversión a base X
 document.getElementById("toBaseXCalculate").addEventListener("click",e=>{
-	roundCifs = document.getElementById("inRoundCfs")==""?2:parseInt(document.getElementById("inRoundCfs"));
+	roundCifs = document.getElementById("inRoundCfs").value==""?3:parseInt(document.getElementById("inRoundCfs").value)+1;
 	const results = ToBaseX(document.getElementById("InToBaseX").value);
 	document.getElementById("toBaseXRes").innerHTML = document.getElementById("InToBaseX").value != ""?"Entrada: "+document.getElementById("InToBaseX").value+"<br><br>Conversión de parte entera: <br>"+results[1]+"<br><br>Conversión de parte flotante: <br>"+results[2]+"<br><br>Resultado: <br>"+maquillaje(results[0]):"";
 	document.getElementById("InToBaseX").value = "";
@@ -106,7 +106,7 @@ function ToBaseX(num){
 			// Agrega el paso a la cadena HTML
 			htmlProcessInt += "<tr><td style='text-align: right'>"+intSide+" |</td><td> "+(""+(base*parseFloat("0."+((intSide+"").split(".")[1]))))+"</td></tr>";
 			// Agrega la cifra a la cadena resultado
-			result_int+=""+(base*parseFloat("0."+((intSide+"").split(".")[1])));
+			result_int+=""+bigInt(base*parseFloat("0."+((intSide+"").split(".")[1]))).toString(base);
 			// reasigna con solo la parte entera 
 			intSide = parseInt(intSide);
 		}else{
@@ -117,7 +117,7 @@ function ToBaseX(num){
 		// Verifica si es momento de parar las iteraciones
 		if (intSide<base) {
 			// Toma el residuo y lo añade a la cadena de cifras 
-			result_int+=intSide+"";
+			result_int+= intSide!="0"?intSide+"":"";
 			break;
 		}
 	}
@@ -130,31 +130,43 @@ function ToBaseX(num){
 	result_int = cadena_transp;
 
 	// Verifica que la variable no sea cero y no caiga en bucle infinito.
-	if (fltSide!="0") {
+	if (fltSide!=0) {
 		// Crea una variable de respaldo por si es necesario truncar
 		var floatSideBak = fltSide;
 		// Añade el primer paso a la cadena HTML
-		htmlProcessFloat += fltSide+"X"+base;
+		htmlProcessFloat += fltSide.toString()+"X"+base;
 		// Iterador de control por si supera las 20 iteraciones
 		var controlIterator=1;
 		// Opera la parte flotante
 		while(true){
 			// Verifica si el iterador de control ha alcanzado el 20
 			if (controlIterator==20) {
+				controlIterator=0;
+				roundCifs--;
+				htmlProcessFloat += " = "+(fltSide*base);
+				if (roundCifs<=0) {
+					result_flt = "N/D";
+					
+					htmlProcessFloat +="<br> No se pudo concretar la operación con esta cantidad de decimales. <br>"
+					break;
+				}
 				//Redondea la variable de respaldo y la asigna a la de operación
-				fltSide = Math.round(floatSideBak,roundCifs);
-				htmlProcessFloat += "<br>Se han superado las 20 iteraciones, lo que nos obliga a redondear/truncar <br>";
+				fltSide = floatSideBak.toFixed(roundCifs);
+				htmlProcessFloat += "<br>Se han superado las 20 iteraciones, lo que nos obliga a redondear/truncar a "+roundCifs+"<br>";
+				htmlProcessFloat += fltSide.toString()+"X"+base;
 			}
+			
 			// multiplica por la base
-			fltSide*=base;
-			if (fltSide>=base) {
-				htmlProcessFloat += " = "+fltSide;
+			fltSide=fltSide*base;
+			if (Number.isSafeInteger(fltSide)) {
+				result_flt += ""+fltSide;
+				htmlProcessFloat += " = "+fltSide.toString();
 				break;
 			}else{
 				// Añade la cifra a la cadena de resultado
 				result_flt +=""+((fltSide+"").split(".")[0]);
 				// Añade el paso a la cadena HTML de procesos
-				htmlProcessFloat += " = "+fltSide+"<br>"+fltSide+"X"+base_str;
+				htmlProcessFloat += " = "+fltSide+"<br>0."+(fltSide+"").split(".")[1]+"X"+base_str;
 				// Resta la parte entera para que quede solo la parte decimal
 				fltSide -= (fltSide+"").includes(".")?parseInt((fltSide+"").split(".")[0]):0;
 				// Aumenta una al iterador de control
@@ -199,8 +211,8 @@ function NotacionExpandida(num){
 	for (let i = 0; i < intSide.length; i++) {
 		var digit = intSide.charAt(i);
 		process += i==0?"":" + ";
-		process += +digit+"x"+base_str+"^"+(intSide.length-(i+1));
-		resultInt = bigInt(resultInt.add(bigInt(digit).multiply(Math.pow(base,intSide.length-(i+1)))));
+		process += parseInt(digit,base).toString(10)+"x"+base_str+"^"+(intSide.length-(i+1));
+		resultInt = bigInt(resultInt.add(bigInt(digit,base).multiply(Math.pow(base,intSide.length-(i+1)))));
 	}
 
 	
@@ -209,12 +221,12 @@ function NotacionExpandida(num){
 		// Calcula el resultado desde la parte negativa
 		for (let i = 0; i < fltSide.length; i++) {
 			var digit = fltSide.charAt(i);
-			process += " + "+digit+"x"+base_str+"^"+(-1-i);
-			resultFlt += parseFloat(digit)*Math.pow(base,(-1-i));
+			process += " + "+parseInt(digit,base)+"x"+base_str+"^"+(-1-i);
+			resultFlt += parseInt(digit,base)*Math.pow(base,(-1-i));
 		}
 	}
 	// Construye el número resultado
-	const result_str = fltSide!="0"?resultInt.toString()+"."+((""+resultFlt).split(".")[1]) : resultInt;
+	const result_str = fltSide!="0"?resultInt.toString()+"."+((""+resultFlt).split(".")[1]) : resultInt.toString();
 	//Arma un arreglo para entregar los procesos y resultados parciales
 	const res = [result_str,resultInt,resultFlt,process]
 	return res;
@@ -262,8 +274,8 @@ function normalizeDigits(bin1,bin2) {
 	// Variables de uso temporal
 	let binX,binY,binZ,binT;
 
-	//Permite conocer que caracter de separación usa la cadenad e entrada
-	z
+	//Permite conocer que caracter de separación usa la cadenade entrada
+	const character = bin1.includes(".")?".":",";
 
 	// En caso de que uno de los números no tenga punto o coma, se lo añade para normalziar
 	if((!bin1.includes(",")&&!bin1.includes("."))){
