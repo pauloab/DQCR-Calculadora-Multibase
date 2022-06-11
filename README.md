@@ -30,8 +30,10 @@ para facilitar su lectura
 - Todas las operaciones (excepto complementos) cuentan con una opción 
 que permite visualizar el proceso manual, es decir,
 como si lo hubiece realizado en papel.
+- Todas las operaciones y bases, soportan valores de coma flotante
 - Interfaz Dark
 - Aplicación liviana y portable, solo requiere un navegador WEB
+
 
 ## How to use
 
