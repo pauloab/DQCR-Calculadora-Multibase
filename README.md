@@ -35,6 +35,16 @@ como si lo hubiece realizado en papel.
 - Aplicación liviana y portable, solo requiere un navegador WEB
 
 
+## ScreenShots
+
+![SC 1](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/1.png)
+![SC 2](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/2.png)
+![SC 3](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/3.png)
+![SC 4](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/4.png)
+![SC 5](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/5.png)
+![SC 6](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/6.png)
+![SC 7](https://github.com/pauloab/DQCR-Calculadora-Multibase/raw/main/screenshots/7.png)
+
 ## How to use
 
 Solamente es necesario abrir el archivo `index.html` con un navegador WEB
